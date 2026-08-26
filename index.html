@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Feed the Monster 🐲 — Học tiếng Anh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* =========================================================
+     FEED THE MONSTER — English word game for kids
+     -----------------------------------------------------------
+     AUDIO FILES: put your .mp3 files on GitHub (e.g. GitHub Pages)
+     inside a folder called  assets/audio/  right next to this
+     HTML file, using EXACTLY these filenames:
+
+        assets/audio/feed_rice.mp3     -> "Feed me the rice."
+        assets/audio/feed_cake.mp3     -> "Feed me the cake."
+        assets/audio/feed_pasta.mp3    -> "Feed me the pasta."
+        assets/audio/feed_salad.mp3    -> "Feed me the salad."
+        assets/audio/chomp.mp3         -> chewing / nom-nom sound
+        assets/audio/oh_oh.mp3         -> "oh oh" (wrong answer)
+        assets/audio/correct.mp3       -> cheerful correct chime
+
+     If a file is missing, the game keeps working: it falls back
+     to the browser's built-in voice for the sentences, and to a
+     tiny synth "boop" for the sound effects, so you can test the
+     game before uploading the mp3s.
+     ========================================================= */
+
+  :root{
+    --bg-top: #FFE29A;
+    --bg-bottom: #FFB4A2;
+    --monster: #8C6FE6;
+    --monster-dark: #6B4FD1;
+    --monster-belly: #B7A3F5;
+    --card: #FFFDF7;
+    --ink: #4A3A6B;
+    --good: #4CD37E;
+    --bad: #FF6B6B;
+    --tray: #FFF7E8;
+    font-family: 'Fredoka', sans-serif;
+  }
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body{ height:100%; margin:0; overflow:hidden; }
+  body{
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--ink);
+    user-select:none;
+  }
+
+  #stage{
+    position:relative;
+    width:100%; max-width:480px; height:100%; max-height:900px;
+    display:flex; flex-direction:column;
+    padding: 14px 14px 0;
+  }
+
+  /* ---------- Top bar ---------- */
+  #topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 4px 6px 8px;
+  }
+  #title{
+    font-family:'Baloo 2', sans-serif; font-weight:800;
+    font-size: 22px; color: var(--monster-dark);
+    text-shadow: 2px 2px 0 #fff8;
+    display:flex; align-items:center; gap:6px;
+  }
+  #hud{ display:flex; align-items:center; gap:10px; }
+  .pill{
+    background: var(--card); border-radius: 999px;
+    padding: 6px 12px; font-weight:700; font-size:14px;
+    box-shadow: 0 3px 0 #0001;
+    display:flex; align-items:center; gap:6px;
+  }
+  #soundBtn{
+    background: var(--card); border:none; border-radius:50%;
+    width:38px; height:38px; font-size:18px; cursor:pointer;
+    box-shadow: 0 3px 0 #0001;
+  }
+
+  /* ---------- Progress dots ---------- */
+  #progress{ display:flex; justify-content:center; gap:6px; margin: 2px 0 6px; }
+  .dot{ width:10px; height:10px; border-radius:50%; background:#ffffff88; transition: all .25s; }
+  .dot.done{ background: var(--good); }
+  .dot.current{ background: var(--monster-dark); transform: scale(1.3); }
+
+  /* ---------- Speech bubble ---------- */
+  #bubbleWrap{ display:flex; justify-content:center; margin-top: 4px; }
+  #bubble{
+    background: var(--card);
+    border-radius: 22px;
+    padding: 12px 18px;
+    font-size: 19px; font-weight:700;
+    box-shadow: 0 4px 0 #0001;
+    display:flex; align-items:center; gap:10px;
+    max-width: 90%;
+    text-align:center;
+    position:relative;
+    animation: pop .25s ease;
+  }
+  #bubble:after{
+    content:"";
+    position:absolute; bottom:-10px; left:50%; transform: translateX(-50%);
+    border-width: 10px 8px 0 8px;
+    border-style: solid;
+    border-color: var(--card) transparent transparent transparent;
+  }
+  #speakBtn{
+    border:none; background: var(--monster); color:white;
+    width:32px; height:32px; min-width:32px; border-radius:50%;
+    font-size:15px; cursor:pointer;
+    box-shadow: 0 2px 0 var(--monster-dark);
+  }
+  #speakBtn:active{ transform: translateY(2px); box-shadow:none; }
+
+  /* ---------- Monster scene ---------- */
+  #scene{
+    flex:1; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    min-height: 0;
+  }
+  #monsterWrap{
+    width: min(78vw, 300px);
+    animation: bob 2.6s ease-in-out infinite;
+  }
+  #monsterWrap.shake{ animation: shakeHead .5s ease; }
+  #monsterWrap.eat{ animation: eatBounce .5s ease; }
+
+  @keyframes bob{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-8px);} }
+  @keyframes shakeHead{
+    0%,100%{ transform: rotate(0); }
+    20%{ transform: rotate(-9deg); }
+    40%{ transform: rotate(8deg); }
+    60%{ transform: rotate(-6deg); }
+    80%{ transform: rotate(4deg); }
+  }
+  @keyframes eatBounce{
+    0%,100%{ transform: scale(1); }
+    30%{ transform: scale(1.08,0.92); }
+    60%{ transform: scale(0.95,1.06); }
+  }
+  @keyframes pop{ from{ transform: scale(.7); opacity:0;} to{ transform: scale(1); opacity:1;} }
+
+  .eye{ transition: transform .15s; }
+  #monsterWrap.eat .eye{ transform: scaleY(.2); }
+
+  .mouthGroup{ transform-origin: 150px 205px; transition: transform .18s ease; }
+  .mouthOpen .mouthOpenPath{ opacity:1; }
+  .mouthOpen .mouthClosedPath{ opacity:0; }
+  .mouthOpenPath{ opacity:0; transition: opacity .15s; }
+  .mouthClosedPath{ opacity:1; transition: opacity .15s; }
+
+  /* ---------- Flying food ---------- */
+  .flyingFood{
+    position:absolute; width:76px; height:76px; z-index:20;
+    pointer-events:none;
+    transition: all .45s cubic-bezier(.4,0,.2,1);
+  }
+  .flyingFood.wrongReturn{
+    transition: all .35s ease;
+  }
+
+  /* ---------- Tray ---------- */
+  #trayWrap{ padding: 6px 0 18px; }
+  #hintLabel{
+    text-align:center; font-size:13px; font-weight:600; color:var(--ink); opacity:.75;
+    height:18px; margin-bottom:2px;
+  }
+  #tray{
+    display:flex; justify-content:center; gap:14px;
+    background: var(--tray);
+    border-radius: 26px;
+    padding: 14px 10px;
+    box-shadow: 0 4px 0 #0001;
+  }
+  .foodBtn{
+    background: white; border:none; border-radius: 20px;
+    width: 90px; height: 90px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    box-shadow: 0 4px 0 #0002;
+    transition: transform .12s;
+    position:relative;
+  }
+  .foodBtn:active{ transform: translateY(3px); box-shadow: 0 1px 0 #0002; }
+  .foodBtn svg, .foodBtn img{ width: 68px; height:68px; object-fit: contain; }
+  .foodBtn.disabled{ opacity:.4; pointer-events:none; }
+  .foodBtn .word{
+    position:absolute; bottom:-20px; left:0; right:0; text-align:center;
+    font-size:11px; font-weight:700; color: var(--ink); opacity:0;
+  }
+  .foodBtn.showWord .word{ opacity:.85; }
+
+  /* ---------- feedback flash ---------- */
+  .flash{
+    position:absolute; inset:0; pointer-events:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 70px; opacity:0; z-index:30;
+  }
+  .flash.show{ animation: flashPop .7s ease forwards; }
+  @keyframes flashPop{
+    0%{ opacity:0; transform: scale(.4);}
+    30%{ opacity:1; transform: scale(1.15);}
+    70%{ opacity:1; transform: scale(1);}
+    100%{ opacity:0; transform: scale(1.3);}
+  }
+
+  /* ---------- confetti ---------- */
+  .confetti{
+    position:absolute; top:-10px; width:8px; height:14px; border-radius:2px;
+    z-index:25; animation: fall linear forwards;
+  }
+  @keyframes fall{
+    to{ transform: translateY(120vh) rotate(540deg); opacity:0.2; }
+  }
+
+  /* ---------- end screen ---------- */
+  #endScreen{
+    position:absolute; inset:0; z-index:50;
+    background: #00000055;
+    display:none; align-items:center; justify-content:center;
+  }
+  #endScreen.show{ display:flex; }
+  #endCard{
+    background: var(--card); border-radius: 28px; padding: 30px 26px;
+    text-align:center; width: 82%; max-width: 320px;
+    animation: pop .3s ease;
+  }
+  #endCard h2{ font-family:'Baloo 2',sans-serif; color:var(--monster-dark); margin:0 0 6px; }
+  #endStars{ font-size: 40px; margin: 10px 0; letter-spacing:4px; }
+  #playAgain{
+    margin-top: 14px; border:none; background: var(--monster); color:#fff;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:16px;
+    padding: 12px 26px; border-radius: 999px; cursor:pointer;
+    box-shadow: 0 4px 0 var(--monster-dark);
+  }
+  #playAgain:active{ transform: translateY(3px); box-shadow:none; }
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <div id="topbar">
+    <div id="title">🐲 Feed the Monster</div>
+    <div id="hud">
+      <div class="pill">⭐ <span id="scoreVal">0</span></div>
+      <button id="soundBtn" title="Bật/tắt âm thanh">🔊</button>
+    </div>
+  </div>
+
+  <div id="progress"></div>
+
+  <div id="bubbleWrap">
+    <div id="bubble">
+      <span id="bubbleText">Ready?</span>
+      <button id="speakBtn" title="Nghe lại">🔊</button>
+    </div>
+  </div>
+
+  <div id="scene">
+    <div class="flash" id="flash"></div>
+
+    <div id="monsterWrap">
+      <svg viewBox="0 0 300 280" width="100%" height="100%">
+        <ellipse cx="150" cy="255" rx="95" ry="14" fill="#00000018"/>
+        <g class="mouthGroup" id="mouthGroup">
+          <!-- body -->
+          <path d="M150 20
+                   C 235 20 268 90 268 150
+                   C 268 220 220 262 150 262
+                   C 80 262 32 220 32 150
+                   C 32 90 65 20 150 20 Z"
+                fill="var(--monster)" stroke="var(--monster-dark)" stroke-width="6"/>
+          <!-- belly patch -->
+          <ellipse cx="150" cy="188" rx="58" ry="34" fill="var(--monster-belly)" opacity="0.55"/>
+          <!-- bumps -->
+          <circle cx="95" cy="45" r="14" fill="var(--monster)" stroke="var(--monster-dark)" stroke-width="6"/>
+          <circle cx="205" cy="45" r="14" fill="var(--monster)" stroke="var(--monster-dark)" stroke-width="6"/>
+
+          <!-- eyes -->
+          <g class="eye">
+            <circle cx="112" cy="118" r="26" fill="white" stroke="var(--monster-dark)" stroke-width="4"/>
+            <circle cx="118" cy="122" r="12" fill="#3A2E5C"/>
+            <circle cx="122" cy="117" r="4" fill="white"/>
+          </g>
+          <g class="eye">
+            <circle cx="188" cy="118" r="26" fill="white" stroke="var(--monster-dark)" stroke-width="4"/>
+            <circle cx="194" cy="122" r="12" fill="#3A2E5C"/>
+            <circle cx="198" cy="117" r="4" fill="white"/>
+          </g>
+
+          <!-- mouth closed (smile) -->
+          <path class="mouthClosedPath" d="M105 178 Q150 208 195 178 Q150 196 105 178 Z"
+                fill="#3A2E5C"/>
+          <path class="mouthClosedPath" d="M112 180 Q150 198 188 180" fill="none"
+                stroke="#3A2E5C" stroke-width="5" stroke-linecap="round"/>
+
+          <!-- mouth open (big O with tongue + teeth) -->
+          <g class="mouthOpenPath" id="mouthOpenGroup">
+            <ellipse cx="150" cy="188" rx="52" ry="42" fill="#3A2E5C"/>
+            <path d="M104 172 Q150 158 196 172 L192 180 Q150 168 108 180 Z" fill="white"/>
+            <ellipse cx="150" cy="212" rx="34" ry="16" fill="#FF8FA3"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div id="trayWrap">
+    <div id="hintLabel"></div>
+    <div id="tray"></div>
+  </div>
+
+  <div id="endScreen">
+    <div id="endCard">
+      <h2>Great job! 🎉</h2>
+      <div id="endStars"></div>
+      <div id="endScoreText" style="font-weight:700;"></div>
+      <button id="playAgain">Play again</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Preloaded audio elements. Point these at your GitHub-hosted mp3 files. -->
+<audio id="sfx_chomp"   preload="auto" src="assets/audio/chomp.mp3"></audio>
+<audio id="sfx_ohoh"    preload="auto" src="assets/audio/oh_oh.mp3"></audio>
+<audio id="sfx_correct" preload="auto" src="assets/audio/correct.mp3"></audio>
+
+<script>
+(function(){
+
+  /* ================= FOOD DATA =================
+     Each item has a small inline SVG drawing by default so the game
+     always looks right with zero setup. To use a real photo/icon
+     instead, just set  imgSrc  to your own image URL (like the
+     Flaticon pasta link) — the game will use that image instead
+     of the drawing automatically.
+  ================================================= */
+  const FOODS = [
+    {
+      id:'rice', word:'rice', sentence:'Feed me the rice.',
+      audio:'assets/audio/feed_rice.mp3',
+      imgSrc: 'https://cdn-icons-png.flaticon.com/512/1531/1531334.png',
+      svg:`<svg viewBox="0 0 64 64"><ellipse cx="32" cy="46" rx="26" ry="10" fill="#E3873B"/>
+        <path d="M8 40 a24 18 0 0 1 48 0 a26 12 0 0 1 -48 0 Z" fill="#FCFBF4" stroke="#E7E2CE" stroke-width="2"/>
+        <path d="M14 34 Q32 44 50 34" fill="none" stroke="#E7E2CE" stroke-width="2"/>
+        <rect x="44" y="6" width="4" height="30" rx="2" fill="#8B5E3C" transform="rotate(18 44 6)"/>
+        <rect x="50" y="6" width="4" height="30" rx="2" fill="#8B5E3C" transform="rotate(10 50 6)"/></svg>`
+    },
+    {
+      id:'cake', word:'cake', sentence:'Feed me the cake.',
+      audio:'assets/audio/feed_cake.mp3',
+      imgSrc: 'https://cdn-icons-png.flaticon.com/512/2682/2682446.png',
+      svg:`<svg viewBox="0 0 64 64"><path d="M12 34 L52 34 L48 54 a4 4 0 0 1 -4 4 H20 a4 4 0 0 1 -4 -4 Z" fill="#F7B7C6"/>
+        <rect x="12" y="26" width="40" height="10" rx="3" fill="#FFDDE6"/>
+        <path d="M14 34 h36" stroke="#E88AA4" stroke-width="2"/>
+        <circle cx="32" cy="14" r="5" fill="#FF6F91"/>
+        <rect x="30.5" y="6" width="3" height="9" rx="1.5" fill="#E8C468"/>
+        <path d="M30 6 q2 -6 3 0 q1 -6 3 0" fill="none" stroke="#FF9E2C" stroke-width="2" stroke-linecap="round"/></svg>`
+    },
+    {
+      id:'pasta', word:'pasta', sentence:'Feed me the pasta.',
+      audio:'assets/audio/feed_pasta.mp3',
+      imgSrc: 'https://cdn-icons-png.flaticon.com/512/8512/8512334.png',
+      svg:`<svg viewBox="0 0 64 64"><ellipse cx="32" cy="40" rx="26" ry="12" fill="#F0C36A"/>
+        <path d="M12 34 q4 -10 10 -4 q4 -12 10 -2 q4 -10 10 -2 q4 -10 10 0" fill="none" stroke="#F4D98B" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="24" cy="30" r="4" fill="#D9463C"/><circle cx="38" cy="26" r="4" fill="#D9463C"/></svg>`
+    },
+    {
+      id:'salad', word:'salad', sentence:'Feed me the salad.',
+      audio:'assets/audio/feed_salad.mp3',
+      imgSrc: 'https://cdn-icons-png.flaticon.com/512/8204/8204862.png',
+      svg:`<svg viewBox="0 0 64 64"><ellipse cx="32" cy="42" rx="26" ry="12" fill="#EDEBDD"/>
+        <path d="M14 36 q4 -14 10 -4 q3 -16 9 -6 q3 -14 10 -4 q4 -12 9 -2" fill="none" stroke="#6FBF63" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="26" cy="32" r="4" fill="#E4534B"/><circle cx="40" cy="30" r="4" fill="#E4534B"/>
+        <circle cx="34" cy="36" r="3" fill="#F3D250"/></svg>`
+    }
+  ];
+
+  const TOTAL_ROUNDS = 8;
+  let order = [];
+  let roundIndex = 0;
+  let score = 0;
+  let wrongThisRound = 0;
+  let busy = false;
+  let soundOn = true;
+
+  const el = id => document.getElementById(id);
+  const bubbleText = el('bubbleText');
+  const tray = el('tray');
+  const progressEl = el('progress');
+  const scoreVal = el('scoreVal');
+  const monsterWrap = el('monsterWrap');
+  const mouthGroup = el('mouthGroup');
+  const flashEl = el('flash');
+  const hintLabel = el('hintLabel');
+  const scene = el('scene');
+  const endScreen = el('endScreen');
+
+  /* ---------- tiny synth fallback for sound effects ---------- */
+  let actx;
+  function beep(freq, dur, type){
+    try{
+      actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = type||'sine';
+      o.frequency.value = freq;
+      g.gain.value = 0.08;
+      o.connect(g); g.connect(actx.destination);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
+      o.stop(actx.currentTime + dur);
+    }catch(e){}
+  }
+  function playSfxFallback(kind){
+    if(!soundOn) return;
+    if(kind==='chomp'){ beep(220,.12,'square'); setTimeout(()=>beep(180,.12,'square'),110); }
+    if(kind==='ohoh'){ beep(180,.15,'sawtooth'); setTimeout(()=>beep(140,.2,'sawtooth'),150); }
+    if(kind==='correct'){ beep(523,.12); setTimeout(()=>beep(659,.12),110); setTimeout(()=>beep(784,.18),220); }
+  }
+  function playSfx(id, kind){
+    if(!soundOn) return;
+    const audio = el(id);
+    if(audio && audio.getAttribute('src')){
+      audio.currentTime = 0;
+      audio.play().catch(()=>playSfxFallback(kind));
+    } else {
+      playSfxFallback(kind);
+    }
+  }
+
+  function speak(text){
+    if(!soundOn) return;
+    try{
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US'; u.rate = 0.85; u.pitch = 1.05;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  function playSentence(food){
+    if(!soundOn) return;
+    const a = new Audio(food.audio);
+    a.play().then(()=>{}).catch(()=>{ speak(food.sentence); });
+    a.onerror = ()=> speak(food.sentence);
+    // if file doesn't exist, 'error' fires quickly; guard with timeout too
+    setTimeout(()=>{ if(a.error) speak(food.sentence); }, 300);
+  }
+
+  /* ---------- setup ---------- */
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  function buildOrder(){
+    // cycle through foods shuffled, repeating enough times for TOTAL_ROUNDS
+    let list = [];
+    while(list.length < TOTAL_ROUNDS){
+      list = list.concat(shuffle(FOODS));
+    }
+    order = list.slice(0, TOTAL_ROUNDS);
+  }
+
+  function buildProgressDots(){
+    progressEl.innerHTML = '';
+    for(let i=0;i<TOTAL_ROUNDS;i++){
+      const d = document.createElement('div');
+      d.className = 'dot';
+      progressEl.appendChild(d);
+    }
+  }
+  function updateProgressDots(){
+    [...progressEl.children].forEach((d,i)=>{
+      d.className = 'dot' + (i<roundIndex ? ' done' : (i===roundIndex ? ' current':''));
+    });
+  }
+
+  function renderTray(target){
+    tray.innerHTML = '';
+    const shuffledFoods = shuffle(FOODS);
+    shuffledFoods.forEach(food=>{
+      const btn = document.createElement('button');
+      btn.className = 'foodBtn';
+      btn.dataset.id = food.id;
+      btn.innerHTML = (food.imgSrc
+          ? `<img src="${food.imgSrc}" alt="${food.word}" draggable="false">`
+          : food.svg)
+        + `<span class="word">${food.word}</span>`;
+      btn.addEventListener('click', ()=> onPick(food, target, btn));
+      tray.appendChild(btn);
+    });
+  }
+
+  function startRound(){
+    if(roundIndex >= TOTAL_ROUNDS){ return endGame(); }
+    busy = false;
+    wrongThisRound = 0;
+    hintLabel.textContent = '';
+    [...tray.children].forEach(b=>b.classList.remove('showWord'));
+    updateProgressDots();
+
+    const target = order[roundIndex];
+    bubbleText.textContent = target.sentence;
+    renderTray(target);
+
+    // little intro pop for the bubble
+    const bubble = el('bubble');
+    bubble.style.animation = 'none'; void bubble.offsetWidth; bubble.style.animation = 'pop .25s ease';
+
+    setTimeout(()=> playSentence(target), 350);
+  }
+
+  el('speakBtn').addEventListener('click', ()=>{
+    const target = order[roundIndex];
+    if(target) playSentence(target);
+  });
+
+  function foodBtnCenter(btn){
+    const r = btn.getBoundingClientRect();
+    const sr = scene.getBoundingClientRect();
+    return { x: r.left + r.width/2 - sr.left, y: r.top + r.height/2 - sr.top };
+  }
+  function mouthCenter(){
+    const sr = scene.getBoundingClientRect();
+    const mr = monsterWrap.getBoundingClientRect();
+    return { x: mr.left + mr.width*0.5 - sr.left, y: mr.top + mr.height*0.72 - sr.top };
+  }
+
+  function flashEmoji(char){
+    flashEl.textContent = char;
+    flashEl.classList.remove('show'); void flashEl.offsetWidth;
+    flashEl.classList.add('show');
+  }
+
+  function confettiBurst(){
+    const colors = ['#FF6B6B','#FFD93D','#4CD37E','#6FA8FF','#B389F9'];
+    for(let i=0;i<18;i++){
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = (10 + Math.random()*80) + '%';
+      c.style.background = colors[i % colors.length];
+      c.style.animationDuration = (1 + Math.random()*0.8) + 's';
+      c.style.top = '-10px';
+      scene.appendChild(c);
+      setTimeout(()=>c.remove(), 2000);
+    }
+  }
+
+  function onPick(food, target, btn){
+    if(busy) return;
+    busy = true;
+    [...tray.children].forEach(b=> b.classList.add('disabled'));
+
+    const start = foodBtnCenter(btn);
+    const end = mouthCenter();
+    const flying = document.createElement('div');
+    flying.className = 'flyingFood';
+    flying.innerHTML = food.imgSrc ? `<img src="${food.imgSrc}" style="width:100%;height:100%">` : food.svg;
+    flying.style.left = start.x - 38 + 'px';
+    flying.style.top = start.y - 38 + 'px';
+    scene.appendChild(flying);
+    btn.style.visibility = 'hidden';
+
+    requestAnimationFrame(()=>{
+      flying.style.left = end.x - 38 + 'px';
+      flying.style.top = end.y - 38 + 'px';
+      flying.style.transform = 'scale(0.6)';
+    });
+
+    const isCorrect = food.id === target.id;
+
+    setTimeout(()=>{
+      if(isCorrect){
+        flying.remove();
+        mouthGroup.classList.add('mouthOpen');
+        monsterWrap.classList.add('eat');
+        playSfx('sfx_chomp','chomp');
+        flashEmoji('😋');
+        setTimeout(()=>{
+          playSfx('sfx_correct','correct');
+          confettiBurst();
+        }, 180);
+        score += (wrongThisRound === 0 ? 2 : 1);
+        scoreVal.textContent = score;
+
+        setTimeout(()=>{
+          mouthGroup.classList.remove('mouthOpen');
+          monsterWrap.classList.remove('eat');
+          roundIndex++;
+          startRound();
+        }, 900);
+      } else {
+        wrongThisRound++;
+        monsterWrap.classList.add('shake');
+        playSfx('sfx_ohoh','ohoh');
+        flashEmoji('🙅');
+        flying.classList.add('wrongReturn');
+        flying.style.left = start.x - 38 + 'px';
+        flying.style.top = start.y - 38 + 'px';
+        flying.style.transform = 'scale(1)';
+
+        setTimeout(()=>{
+          monsterWrap.classList.remove('shake');
+          flying.remove();
+          btn.style.visibility = 'visible';
+          [...tray.children].forEach(b=> b.classList.remove('disabled'));
+          busy = false;
+          if(wrongThisRound >= 2){
+            const targetBtn = [...tray.children].find(b=>b.dataset.id===target.id);
+            if(targetBtn) targetBtn.classList.add('showWord');
+            hintLabel.textContent = 'Hint: look for "' + target.word + '"';
+          }
+        }, 420);
+      }
+    }, 420);
+  }
+
+  function endGame(){
+    const pct = score / (TOTAL_ROUNDS*2);
+    let stars = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : 1;
+    el('endStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
+    el('endScoreText').textContent = 'Score: ' + score + ' / ' + (TOTAL_ROUNDS*2);
+    endScreen.classList.add('show');
+  }
+
+  el('playAgain').addEventListener('click', ()=>{
+    endScreen.classList.remove('show');
+    score = 0; roundIndex = 0; scoreVal.textContent = 0;
+    buildOrder(); buildProgressDots(); startRound();
+  });
+
+  el('soundBtn').addEventListener('click', ()=>{
+    soundOn = !soundOn;
+    el('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+    if(!soundOn) speechSynthesis.cancel();
+  });
+
+  // unlock audio on first tap (mobile browsers require a user gesture)
+  document.body.addEventListener('click', function unlock(){
+    ['sfx_chomp','sfx_ohoh','sfx_correct'].forEach(id=>{
+      const a = el(id);
+      a.play().then(()=>{a.pause(); a.currentTime=0;}).catch(()=>{});
+    });
+    document.body.removeEventListener('click', unlock);
+  }, { once:true });
+
+  buildOrder();
+  buildProgressDots();
+  startRound();
+
+})();
+</script>
+</body>
+</html>
