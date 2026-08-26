@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Feed the Monster 🐲 — Học tiếng Anh</title>
+
+<!-- Tab icon -->
+<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1236/1236128.png">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1236/1236128.png">
+
+<!-- Preview image when the link is shared (Facebook, Zalo, Messenger, iMessage...) -->
+<meta property="og:title" content="Feed the Monster 🐲 — Học tiếng Anh">
+<meta property="og:description" content="Cho quái vật ăn đúng món để học từ vựng tiếng Anh!">
+<meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/1236/1236128.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Feed the Monster 🐲 — Học tiếng Anh">
+<meta name="twitter:description" content="Cho quái vật ăn đúng món để học từ vựng tiếng Anh!">
+<meta name="twitter:image" content="https://cdn-icons-png.flaticon.com/512/1236/1236128.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -146,6 +160,18 @@
 
   .eye{ transition: transform .15s; }
   #monsterWrap.eat .eye{ transform: scaleY(.2); }
+  #monsterWrap.chewing .eye{ animation: eyeChew .4s steps(2) infinite; }
+  @keyframes eyeChew{ 0%,100%{ transform: scaleY(1);} 50%{ transform: scaleY(.4);} }
+
+  #monsterWrap.chewing{ animation: chewBounce .4s ease-in-out infinite; }
+  @keyframes chewBounce{
+    0%,100%{ transform: scale(1) translateY(0); }
+    50%{ transform: scale(1.06,0.94) translateY(2px); }
+  }
+  .mouthGroup.chewing .mouthOpenPath{ animation: chewOpen .4s steps(1) infinite; }
+  .mouthGroup.chewing .mouthClosedPath{ animation: chewClosed .4s steps(1) infinite; }
+  @keyframes chewOpen{ 0%,100%{ opacity:0;} 50%{ opacity:1;} }
+  @keyframes chewClosed{ 0%,100%{ opacity:1;} 50%{ opacity:0;} }
 
   .mouthGroup{ transform-origin: 150px 205px; transition: transform .18s ease; }
   .mouthOpen .mouthOpenPath{ opacity:1; }
@@ -435,6 +461,39 @@
     }
   }
 
+  function startChewing(){
+    mouthGroup.classList.add('chewing');
+    monsterWrap.classList.add('chewing');
+  }
+  function stopChewing(){
+    mouthGroup.classList.remove('chewing');
+    monsterWrap.classList.remove('chewing');
+  }
+
+  // Plays the chewing sound (assets/audio/chomp.mp3, ~5s) and waits for it
+  // to actually finish before calling back — so the monster keeps chewing
+  // the whole time and the next sentence only starts once it's done eating.
+  function playChomp(callback){
+    const audio = el('sfx_chomp');
+    let finished = false;
+    const finish = ()=>{ if(finished) return; finished = true; callback(); };
+
+    if(!soundOn){
+      setTimeout(finish, 900);
+      return;
+    }
+    audio.onended = finish;
+    audio.onerror = ()=>{ playSfxFallback('chomp'); setTimeout(finish, 1200); };
+    audio.currentTime = 0;
+    const p = audio.play();
+    if(p && p.catch){
+      p.catch(()=>{ playSfxFallback('chomp'); setTimeout(finish, 1200); });
+    }
+    // Safety net: if the file is missing/short or 'ended' never fires,
+    // don't let the game get stuck — cap the wait a bit above 5s.
+    setTimeout(finish, 6000);
+  }
+
   function speak(text){
     if(!soundOn) return;
     try{
@@ -584,23 +643,20 @@
     setTimeout(()=>{
       if(isCorrect){
         flying.remove();
-        mouthGroup.classList.add('mouthOpen');
-        monsterWrap.classList.add('eat');
-        playSfx('sfx_chomp','chomp');
         flashEmoji('😋');
-        setTimeout(()=>{
-          playSfx('sfx_correct','correct');
-          confettiBurst();
-        }, 180);
+        playSfx('sfx_correct','correct');
+        confettiBurst();
         score += (wrongThisRound === 0 ? 2 : 1);
         scoreVal.textContent = score;
 
-        setTimeout(()=>{
-          mouthGroup.classList.remove('mouthOpen');
-          monsterWrap.classList.remove('eat');
-          roundIndex++;
-          startRound();
-        }, 900);
+        startChewing();
+        playChomp(()=>{
+          stopChewing();
+          setTimeout(()=>{
+            roundIndex++;
+            startRound();
+          }, 300);
+        });
       } else {
         wrongThisRound++;
         monsterWrap.classList.add('shake');
