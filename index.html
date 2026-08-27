@@ -32,7 +32,11 @@
         assets/audio/feed_cake.mp3     -> "Feed me the cake."
         assets/audio/feed_pasta.mp3    -> "Feed me the pasta."
         assets/audio/feed_salad.mp3    -> "Feed me the salad."
+        assets/audio/wash_hands.mp3    -> "Wash my hands."
+        assets/audio/wash_face.mp3     -> "Wash my face."
         assets/audio/chomp.mp3         -> chewing / nom-nom sound
+        assets/audio/washing_hands.mp3 -> hand-washing / splashing sound
+        assets/audio/washing_face.mp3  -> face-washing / splashing sound
         assets/audio/oh_oh.mp3         -> "oh oh" (wrong answer)
         assets/audio/correct.mp3       -> cheerful correct chime
 
@@ -40,6 +44,14 @@
      to the browser's built-in voice for the sentences, and to a
      tiny synth "boop" for the sound effects, so you can test the
      game before uploading the mp3s.
+
+     AUDIO RELIABILITY: all sentence + effect audio elements are
+     created ONCE up front and "unlocked" together on the very
+     first tap (see the #startScreen overlay below). This is what
+     fixes the old bugs where the first sentence auto-played
+     incorrectly on load, chewing/correct/wrong sounds needed an
+     extra tap to work, and sound would randomly go missing after
+     "Play again".
      ========================================================= */
 
   :root{
@@ -196,15 +208,15 @@
     height:18px; margin-bottom:2px;
   }
   #tray{
-    display:flex; justify-content:center; gap:14px;
+    display:flex; justify-content:center; flex-wrap:wrap; gap:10px 12px;
     background: var(--tray);
     border-radius: 26px;
     padding: 14px 10px;
     box-shadow: 0 4px 0 #0001;
   }
   .foodBtn{
-    background: white; border:none; border-radius: 20px;
-    width: 90px; height: 90px;
+    background: white; border:none; border-radius: 18px;
+    width: 78px; height: 78px;
     display:flex; align-items:center; justify-content:center;
     cursor:pointer;
     box-shadow: 0 4px 0 #0002;
@@ -212,7 +224,7 @@
     position:relative;
   }
   .foodBtn:active{ transform: translateY(3px); box-shadow: 0 1px 0 #0002; }
-  .foodBtn svg, .foodBtn img{ width: 68px; height:68px; object-fit: contain; }
+  .foodBtn svg, .foodBtn img{ width: 58px; height:58px; object-fit: contain; }
   .foodBtn.disabled{ opacity:.4; pointer-events:none; }
   .foodBtn .word{
     position:absolute; bottom:-20px; left:0; right:0; text-align:center;
@@ -264,6 +276,95 @@
     box-shadow: 0 4px 0 var(--monster-dark);
   }
   #playAgain:active{ transform: translateY(3px); box-shadow:none; }
+
+  /* ---------- start screen (also unlocks audio on tap) ---------- */
+  #startScreen{
+    position:absolute; inset:0; z-index:60;
+    background: #00000055;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #startScreen.hide{ display:none; }
+  #startCard{
+    background: var(--card); border-radius: 28px; padding: 30px 26px;
+    text-align:center; width: 82%; max-width: 320px;
+    animation: pop .3s ease;
+  }
+  #startCard h2{ font-family:'Baloo 2',sans-serif; color:var(--monster-dark); margin:0 0 8px; }
+  #startCard p{ margin:0 0 16px; font-size:14px; opacity:.8; }
+  #startBtn{
+    border:none; background: var(--monster); color:#fff;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:18px;
+    padding: 14px 30px; border-radius: 999px; cursor:pointer;
+    box-shadow: 0 4px 0 var(--monster-dark);
+  }
+  #startBtn:active{ transform: translateY(3px); box-shadow:none; }
+
+  /* ---------- wash hands / wash face gestures ---------- */
+  #monsterWrap.washHands, #monsterWrap.washFace{ animation: washBob .3s ease-in-out infinite; }
+  @keyframes washBob{
+    0%,100%{ transform: translateY(0) rotate(0deg); }
+    50%{ transform: translateY(-3px) rotate(-1.5deg); }
+  }
+
+  /* hands: two mitten shapes that slide past each other + rock side to
+     side, like real palms rubbing soap together */
+  .washHand{ opacity:0; }
+  #monsterWrap.washHands .washHand{ opacity:1; }
+  #monsterWrap.washHands .washHandLeft{ animation: scrubLeft .28s ease-in-out infinite; }
+  #monsterWrap.washHands .washHandRight{ animation: scrubRight .28s ease-in-out infinite; }
+  @keyframes scrubLeft{
+    0%,100%{ transform: translate(-10px,2px) rotate(-10deg); }
+    50%{ transform: translate(7px,-3px) rotate(8deg); }
+  }
+  @keyframes scrubRight{
+    0%,100%{ transform: translate(10px,2px) rotate(10deg); }
+    50%{ transform: translate(-7px,-3px) rotate(-8deg); }
+  }
+
+  /* soap suds squeezed out from between the rubbing hands */
+  .washSuds{ opacity:0; }
+  #monsterWrap.washHands .washSuds{ opacity:1; animation: sudsPulse .4s ease-in-out infinite; }
+  @keyframes sudsPulse{
+    0%,100%{ transform: scale(.85) translateY(0); opacity:.85; }
+    50%{ transform: scale(1.15) translateY(-3px); opacity:1; }
+  }
+
+  /* eyes shut happily while the face gets washed */
+  .washFaceLid{ opacity:0; }
+  #monsterWrap.washFace .washFaceLid{ opacity:1; }
+
+  /* sponge: small circular scrubbing path across the face */
+  .washSponge{ opacity:0; transform-origin: center; }
+  #monsterWrap.washFace .washSponge{ opacity:1; animation: scrubFace .8s linear infinite; }
+  @keyframes scrubFace{
+    0%{   transform: translate(-16px,-4px) rotate(-10deg); }
+    25%{  transform: translate(0px,-16px) rotate(6deg); }
+    50%{  transform: translate(16px,-4px) rotate(12deg); }
+    75%{  transform: translate(0px,6px)  rotate(-6deg); }
+    100%{ transform: translate(-16px,-4px) rotate(-10deg); }
+  }
+
+  .bubble{
+    position:absolute; border-radius:50%; z-index:26; pointer-events:none;
+    background: radial-gradient(circle at 35% 30%, #ffffffee, #BEE7FF99 70%, #9ED8FF66);
+    border: 1px solid #ffffffaa;
+    animation: bubbleFloat linear forwards;
+  }
+  @keyframes bubbleFloat{
+    0%{ transform: translateY(0) scale(.6); opacity:0; }
+    15%{ opacity:1; }
+    100%{ transform: translateY(-90px) scale(1.1); opacity:0; }
+  }
+  .droplet{
+    position:absolute; width:10px; height:14px; z-index:26; pointer-events:none;
+    background: #6FC3FF; border-radius: 0 50% 50% 50%; transform: rotate(45deg);
+    animation: dropletFall linear forwards;
+  }
+  @keyframes dropletFall{
+    0%{ opacity:0; transform: translateY(-6px) rotate(45deg); }
+    20%{ opacity:1; }
+    100%{ opacity:0; transform: translateY(50px) rotate(45deg); }
+  }
 </style>
 </head>
 <body>
@@ -331,6 +432,48 @@
             <path d="M104 172 Q150 158 196 172 L192 180 Q150 168 108 180 Z" fill="white"/>
             <ellipse cx="150" cy="212" rx="34" ry="16" fill="#FF8FA3"/>
           </g>
+
+          <!-- hands, shown only during the "wash hands" gesture -->
+          <g transform="translate(132,222)">
+            <g class="washHand washHandLeft">
+              <ellipse cx="0" cy="0" rx="24" ry="18" fill="#FFD9B3" stroke="#C98A4B" stroke-width="4"/>
+              <circle cx="-13" cy="-13" r="7" fill="#FFD9B3" stroke="#C98A4B" stroke-width="3"/>
+              <circle cx="0" cy="-18" r="7" fill="#FFD9B3" stroke="#C98A4B" stroke-width="3"/>
+              <circle cx="13" cy="-13" r="7" fill="#FFD9B3" stroke="#C98A4B" stroke-width="3"/>
+            </g>
+          </g>
+          <g transform="translate(168,222)">
+            <g class="washHand washHandRight">
+              <ellipse cx="0" cy="0" rx="24" ry="18" fill="#FFD9B3" stroke="#C98A4B" stroke-width="4"/>
+              <circle cx="-13" cy="-13" r="7" fill="#FFD9B3" stroke="#C98A4B" stroke-width="3"/>
+              <circle cx="0" cy="-18" r="7" fill="#FFD9B3" stroke="#C98A4B" stroke-width="3"/>
+              <circle cx="13" cy="-13" r="7" fill="#FFD9B3" stroke="#C98A4B" stroke-width="3"/>
+            </g>
+          </g>
+          <g class="washSuds">
+            <circle cx="150" cy="200" r="11" fill="#fff" opacity="0.92"/>
+            <circle cx="137" cy="195" r="7" fill="#fff" opacity="0.85"/>
+            <circle cx="163" cy="196" r="8" fill="#fff" opacity="0.85"/>
+            <circle cx="150" cy="186" r="6" fill="#fff" opacity="0.8"/>
+          </g>
+
+          <!-- closed, happy eyelids shown only during "wash face" -->
+          <g class="washFaceLid">
+            <ellipse cx="112" cy="118" rx="27" ry="27" fill="var(--monster)"/>
+            <path d="M90 118 Q112 104 134 118" fill="none" stroke="var(--monster-dark)" stroke-width="5" stroke-linecap="round"/>
+            <ellipse cx="188" cy="118" rx="27" ry="27" fill="var(--monster)"/>
+            <path d="M166 118 Q188 104 210 118" fill="none" stroke="var(--monster-dark)" stroke-width="5" stroke-linecap="round"/>
+          </g>
+
+          <!-- sponge, shown only during the "wash face" gesture -->
+          <g class="washSponge" style="transform-origin:150px 150px;">
+            <rect x="122" y="128" width="56" height="40" rx="14" fill="#8FE0C7" stroke="#3FAE87" stroke-width="3" opacity="0.94"/>
+            <circle cx="136" cy="140" r="3" fill="#3FAE87" opacity="0.5"/>
+            <circle cx="150" cy="150" r="3" fill="#3FAE87" opacity="0.5"/>
+            <circle cx="164" cy="140" r="3" fill="#3FAE87" opacity="0.5"/>
+            <circle cx="142" cy="157" r="2.5" fill="#3FAE87" opacity="0.5"/>
+            <circle cx="160" cy="157" r="2.5" fill="#3FAE87" opacity="0.5"/>
+          </g>
         </g>
       </svg>
     </div>
@@ -350,12 +493,22 @@
     </div>
   </div>
 
+  <div id="startScreen">
+    <div id="startCard">
+      <h2>🐲 Feed the Monster</h2>
+      <p>Chạm để bắt đầu & bật âm thanh</p>
+      <button id="startBtn">▶ Start</button>
+    </div>
+  </div>
+
 </div>
 
 <!-- Preloaded audio elements. Point these at your GitHub-hosted mp3 files. -->
-<audio id="sfx_chomp"   preload="auto" src="assets/audio/chomp.mp3"></audio>
-<audio id="sfx_ohoh"    preload="auto" src="assets/audio/oh_oh.mp3"></audio>
-<audio id="sfx_correct" preload="auto" src="assets/audio/correct.mp3"></audio>
+<audio id="sfx_chomp"        preload="auto" src="assets/audio/chomp.mp3"></audio>
+<audio id="sfx_ohoh"         preload="auto" src="assets/audio/oh_oh.mp3"></audio>
+<audio id="sfx_correct"      preload="auto" src="assets/audio/correct.mp3"></audio>
+<audio id="sfx_washhands"    preload="auto" src="assets/audio/washing_hands.mp3"></audio>
+<audio id="sfx_washface"     preload="auto" src="assets/audio/washing_face.mp3"></audio>
 
 <script>
 (function(){
@@ -369,7 +522,7 @@
   ================================================= */
   const FOODS = [
     {
-      id:'rice', word:'rice', sentence:'Feed me the rice.',
+      id:'rice', word:'rice', sentence:'Feed me the rice.', type:'food',
       audio:'assets/audio/feed_rice.mp3',
       imgSrc: 'https://cdn-icons-png.flaticon.com/512/1531/1531334.png',
       svg:`<svg viewBox="0 0 64 64"><ellipse cx="32" cy="46" rx="26" ry="10" fill="#E3873B"/>
@@ -379,7 +532,7 @@
         <rect x="50" y="6" width="4" height="30" rx="2" fill="#8B5E3C" transform="rotate(10 50 6)"/></svg>`
     },
     {
-      id:'cake', word:'cake', sentence:'Feed me the cake.',
+      id:'cake', word:'cake', sentence:'Feed me the cake.', type:'food',
       audio:'assets/audio/feed_cake.mp3',
       imgSrc: 'https://cdn-icons-png.flaticon.com/512/2682/2682446.png',
       svg:`<svg viewBox="0 0 64 64"><path d="M12 34 L52 34 L48 54 a4 4 0 0 1 -4 4 H20 a4 4 0 0 1 -4 -4 Z" fill="#F7B7C6"/>
@@ -390,7 +543,7 @@
         <path d="M30 6 q2 -6 3 0 q1 -6 3 0" fill="none" stroke="#FF9E2C" stroke-width="2" stroke-linecap="round"/></svg>`
     },
     {
-      id:'pasta', word:'pasta', sentence:'Feed me the pasta.',
+      id:'pasta', word:'pasta', sentence:'Feed me the pasta.', type:'food',
       audio:'assets/audio/feed_pasta.mp3',
       imgSrc: 'https://cdn-icons-png.flaticon.com/512/8512/8512334.png',
       svg:`<svg viewBox="0 0 64 64"><ellipse cx="32" cy="40" rx="26" ry="12" fill="#F0C36A"/>
@@ -398,15 +551,53 @@
         <circle cx="24" cy="30" r="4" fill="#D9463C"/><circle cx="38" cy="26" r="4" fill="#D9463C"/></svg>`
     },
     {
-      id:'salad', word:'salad', sentence:'Feed me the salad.',
+      id:'salad', word:'salad', sentence:'Feed me the salad.', type:'food',
       audio:'assets/audio/feed_salad.mp3',
       imgSrc: 'https://cdn-icons-png.flaticon.com/512/8204/8204862.png',
       svg:`<svg viewBox="0 0 64 64"><ellipse cx="32" cy="42" rx="26" ry="12" fill="#EDEBDD"/>
         <path d="M14 36 q4 -14 10 -4 q3 -16 9 -6 q3 -14 10 -4 q4 -12 9 -2" fill="none" stroke="#6FBF63" stroke-width="5" stroke-linecap="round"/>
         <circle cx="26" cy="32" r="4" fill="#E4534B"/><circle cx="40" cy="30" r="4" fill="#E4534B"/>
         <circle cx="34" cy="36" r="3" fill="#F3D250"/></svg>`
+    },
+    {
+      // "Gesture" word: instead of flying into the mouth, this one makes
+      // the monster rub its hands together (see .washHands CSS + the
+      // washHand SVG groups). Add your own recording at the path below,
+      // following the same convention as the feed_*.mp3 files.
+      id:'wash_hands', word:'wash hands', sentence:'Wash my hands.', type:'action',
+      gestureClass:'washHands', actionSfxId:'sfx_washhands', particle:'bubble',
+      audio:'assets/audio/wash_hands.mp3',
+	  imgSrc: 'https://cdn-icons-png.flaticon.com/512/2755/2755821.png',
+      svg:`<svg viewBox="0 0 64 64"><ellipse cx="32" cy="46" rx="24" ry="9" fill="#BEE7FF"/>
+        <ellipse cx="22" cy="34" rx="13" ry="16" fill="#FFD9B3" stroke="#E8A96B" stroke-width="2"/>
+        <ellipse cx="42" cy="34" rx="13" ry="16" fill="#FFD9B3" stroke="#E8A96B" stroke-width="2"/>
+        <circle cx="18" cy="18" r="4" fill="#EAF7FF" stroke="#BEE7FF" stroke-width="1.5"/>
+        <circle cx="46" cy="16" r="5" fill="#EAF7FF" stroke="#BEE7FF" stroke-width="1.5"/>
+        <circle cx="32" cy="10" r="3.5" fill="#EAF7FF" stroke="#BEE7FF" stroke-width="1.5"/></svg>`
+    },
+    {
+      // Same idea for "wash face": the monster wipes a sponge across its
+      // face (see .washFace CSS + the .washSponge SVG group).
+      id:'wash_face', word:'wash face', sentence:'Wash my face.', type:'action',
+      gestureClass:'washFace', actionSfxId:'sfx_washface', particle:'droplet',
+      audio:'assets/audio/wash_face.mp3',
+	  imgSrc: 'https://cdn-icons-png.flaticon.com/512/2955/2955768.png',
+      svg:`<svg viewBox="0 0 64 64"><circle cx="32" cy="30" r="22" fill="#FFD9B3" stroke="#E8A96B" stroke-width="2"/>
+        <circle cx="24" cy="26" r="3.5" fill="#4A3A6B"/><circle cx="40" cy="26" r="3.5" fill="#4A3A6B"/>
+        <path d="M24 38 Q32 44 40 38" fill="none" stroke="#4A3A6B" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="16" y="46" width="32" height="12" rx="6" fill="#8FE0C7" stroke="#3FAE87" stroke-width="2"/></svg>`
     }
   ];
+
+  // Preload ONE reusable <audio> element per sentence, up front, instead of
+  // creating a `new Audio()` every round. This is required for the audio to
+  // survive on iOS/Safari: once these fixed elements are "unlocked" by a
+  // single tap (see the startScreen handler below), they keep working for
+  // the rest of the game, including after "Play again".
+  FOODS.forEach(item=>{
+    item.audioEl = new Audio(item.audio);
+    item.audioEl.preload = 'auto';
+  });
 
   const TOTAL_ROUNDS = 8;
   let order = [];
@@ -494,6 +685,51 @@
     setTimeout(finish, 6000);
   }
 
+  function startGesture(cls){
+    monsterWrap.classList.add(cls);
+  }
+  function stopGesture(cls){
+    monsterWrap.classList.remove(cls);
+  }
+
+  // Plays a gesture sound effect (e.g. assets/audio/washing_hands.mp3) and
+  // waits for it to finish before calling back, same pattern as playChomp,
+  // so the round only advances once the sound (and animation) is done.
+  function playActionSfx(item, callback){
+    const audio = el(item.actionSfxId);
+    let finished = false;
+    const finish = ()=>{ if(finished) return; finished = true; callback(); };
+
+    if(!soundOn){ setTimeout(finish, 900); return; }
+    audio.onended = finish;
+    audio.onerror = ()=>{ playSfxFallback('chomp'); setTimeout(finish, 1200); };
+    audio.currentTime = 0;
+    const p = audio.play();
+    if(p && p.catch) p.catch(()=>{ playSfxFallback('chomp'); setTimeout(finish, 1200); });
+    setTimeout(finish, 2500);
+  }
+
+  function particleBurst(kind){
+    const count = kind === 'bubble' ? 10 : 8;
+    const mr = monsterWrap.getBoundingClientRect();
+    const sr = scene.getBoundingClientRect();
+    const cx = mr.left + mr.width*0.5 - sr.left;
+    const cy = mr.top + mr.height*0.72 - sr.top;
+    for(let i=0;i<count;i++){
+      const p = document.createElement('div');
+      p.className = kind;
+      if(kind === 'bubble'){
+        const size = 8 + Math.random()*14;
+        p.style.width = size+'px'; p.style.height = size+'px';
+      }
+      p.style.left = (cx - 60 + Math.random()*120) + 'px';
+      p.style.top = (cy - 20 + Math.random()*30) + 'px';
+      p.style.animationDuration = (0.6 + Math.random()*0.5) + 's';
+      scene.appendChild(p);
+      setTimeout(()=>p.remove(), 1300);
+    }
+  }
+
   function speak(text){
     if(!soundOn) return;
     try{
@@ -506,8 +742,10 @@
 
   function playSentence(food){
     if(!soundOn) return;
-    const a = new Audio(food.audio);
-    a.play().then(()=>{}).catch(()=>{ speak(food.sentence); });
+    const a = food.audioEl;
+    a.currentTime = 0;
+    const p = a.play();
+    if(p && p.catch) p.catch(()=>{ speak(food.sentence); });
     a.onerror = ()=> speak(food.sentence);
     // if file doesn't exist, 'error' fires quickly; guard with timeout too
     setTimeout(()=>{ if(a.error) speak(food.sentence); }, 300);
@@ -643,20 +881,33 @@
     setTimeout(()=>{
       if(isCorrect){
         flying.remove();
-        flashEmoji('😋');
         playSfx('sfx_correct','correct');
         confettiBurst();
         score += (wrongThisRound === 0 ? 2 : 1);
         scoreVal.textContent = score;
 
-        startChewing();
-        playChomp(()=>{
-          stopChewing();
-          setTimeout(()=>{
-            roundIndex++;
-            startRound();
-          }, 300);
-        });
+        if(food.type === 'action'){
+          flashEmoji(food.id === 'wash_hands' ? '🧼' : '💧');
+          startGesture(food.gestureClass);
+          particleBurst(food.particle);
+          playActionSfx(food, ()=>{
+            stopGesture(food.gestureClass);
+            setTimeout(()=>{
+              roundIndex++;
+              startRound();
+            }, 300);
+          });
+        } else {
+          flashEmoji('😋');
+          startChewing();
+          playChomp(()=>{
+            stopChewing();
+            setTimeout(()=>{
+              roundIndex++;
+              startRound();
+            }, 300);
+          });
+        }
       } else {
         wrongThisRound++;
         monsterWrap.classList.add('shake');
@@ -703,18 +954,40 @@
     if(!soundOn) speechSynthesis.cancel();
   });
 
-  // unlock audio on first tap (mobile browsers require a user gesture)
-  document.body.addEventListener('click', function unlock(){
-    ['sfx_chomp','sfx_ohoh','sfx_correct'].forEach(id=>{
+  // unlock ALL audio elements (sfx + every sentence) on the very first tap.
+  // Mobile browsers (especially iOS Safari) only allow an <audio> element to
+  // play if it has been started at least once from within a real user
+  // gesture; doing this once, here, for every element the game will ever
+  // use is what keeps sound working for the whole session — first round,
+  // every later round, and after "Play again".
+  function unlockAllAudio(){
+    ['sfx_chomp','sfx_ohoh','sfx_correct','sfx_washhands','sfx_washface'].forEach(id=>{
       const a = el(id);
+      if(!a) return;
       a.play().then(()=>{a.pause(); a.currentTime=0;}).catch(()=>{});
     });
-    document.body.removeEventListener('click', unlock);
-  }, { once:true });
+    FOODS.forEach(item=>{
+      const a = item.audioEl;
+      a.play().then(()=>{a.pause(); a.currentTime=0;}).catch(()=>{});
+    });
+    // Some browsers also gate speechSynthesis (the fallback voice) behind a
+    // gesture; "warm it up" here too so the very first fallback isn't silent.
+    try{
+      const warm = new SpeechSynthesisUtterance(' ');
+      warm.volume = 0;
+      speechSynthesis.speak(warm);
+    }catch(e){}
+  }
 
   buildOrder();
   buildProgressDots();
-  startRound();
+
+  const startScreen = el('startScreen');
+  el('startBtn').addEventListener('click', ()=>{
+    unlockAllAudio();
+    startScreen.classList.add('hide');
+    startRound();
+  });
 
 })();
 </script>
