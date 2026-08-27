@@ -960,16 +960,27 @@
   // gesture; doing this once, here, for every element the game will ever
   // use is what keeps sound working for the whole session — first round,
   // every later round, and after "Play again".
+  //
+  // IMPORTANT: each element is MUTED while we "prime" it, so nothing is
+  // actually audible during unlock (this is what caused every sentence +
+  // sfx to blare out at once as soon as Start was tapped). We also WAIT
+  // for every element to finish priming before the first round starts, so
+  // the unlock step can never race with (and pause) the real first sentence.
+  function unlockOneAudio(a){
+    return new Promise(resolve=>{
+      if(!a){ resolve(); return; }
+      const wasMuted = a.muted;
+      a.muted = true;
+      const done = ()=>{ a.pause(); a.currentTime = 0; a.muted = wasMuted; resolve(); };
+      const p = a.play();
+      if(p && p.then){ p.then(done).catch(done); }
+      else { done(); }
+    });
+  }
   function unlockAllAudio(){
-    ['sfx_chomp','sfx_ohoh','sfx_correct','sfx_washhands','sfx_washface'].forEach(id=>{
-      const a = el(id);
-      if(!a) return;
-      a.play().then(()=>{a.pause(); a.currentTime=0;}).catch(()=>{});
-    });
-    FOODS.forEach(item=>{
-      const a = item.audioEl;
-      a.play().then(()=>{a.pause(); a.currentTime=0;}).catch(()=>{});
-    });
+    const targets = ['sfx_chomp','sfx_ohoh','sfx_correct','sfx_washhands','sfx_washface']
+      .map(id=>el(id))
+      .concat(FOODS.map(item=>item.audioEl));
     // Some browsers also gate speechSynthesis (the fallback voice) behind a
     // gesture; "warm it up" here too so the very first fallback isn't silent.
     try{
@@ -977,6 +988,7 @@
       warm.volume = 0;
       speechSynthesis.speak(warm);
     }catch(e){}
+    return Promise.all(targets.map(unlockOneAudio));
   }
 
   buildOrder();
@@ -984,9 +996,8 @@
 
   const startScreen = el('startScreen');
   el('startBtn').addEventListener('click', ()=>{
-    unlockAllAudio();
     startScreen.classList.add('hide');
-    startRound();
+    unlockAllAudio().then(startRound);
   });
 
 })();
