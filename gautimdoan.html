@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gấu Con Đi Kiếm Ăn 🐻 — Học từ vựng tiếng Anh</title>
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='34' r='22' fill='%23C68B59'/%3E%3Ccircle cx='14' cy='14' r='9' fill='%23C68B59'/%3E%3Ccircle cx='50' cy='14' r='9' fill='%23C68B59'/%3E%3Ccircle cx='32' cy='38' r='13' fill='%23F3DAB8'/%3E%3Ccircle cx='27' cy='30' r='3' fill='%233A2E22'/%3E%3Ccircle cx='37' cy='30' r='3' fill='%233A2E22'/%3E%3Cellipse cx='32' cy='40' rx='4' ry='3' fill='%233A2E22'/%3E%3C/svg%3E">
+
+<!-- Preview image when the link is shared (Facebook, Zalo, Messenger, iMessage...) -->
+<meta property="og:title" content="Gấu Con Đi Kiếm Ăn 🐻 — Học từ vựng tiếng Anh">
+<meta property="og:description" content="Đưa gấu đi ăn món ăn bằng tiếng Anh">
+<meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/523/523444.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gấu Con Đi Kiếm Ăn 🐻 — Học từ vựng tiếng Anh">
+<meta name="twitter:description" content="Đưa gấu đi ăn món ăn bằng tiếng Anh">
+<meta name="twitter:image" content="https://cdn-icons-png.flaticon.com/512/523/523444.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky-top:#BFE8FF;
+    --sky-bottom:#E9F8D8;
+    --grass1:#8FCB6B;
+    --grass2:#7CB958;
+    --bear: #C68B59;
+    --bear-dark: #8C5E37;
+    --bear-belly: #F3DAB8;
+    --bear-ear: #F7C9B0;
+    --card: #FFFDF7;
+    --ink: #3E4A2B;
+    --good: #4CD37E;
+    --bad: #FF6B6B;
+    --water: #6FC3FF;
+    font-family: 'Fredoka', sans-serif;
+  }
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body{ height:100%; margin:0; overflow:hidden; }
+  body{
+    background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 55%);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--ink);
+    user-select:none;
+  }
+
+  #stage{
+    position:relative;
+    width:100%; max-width:480px; height:100%; max-height:900px;
+    display:flex; flex-direction:column;
+    padding: 12px 12px 0;
+  }
+
+  /* ---------- Top bar ---------- */
+  #topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 2px 6px 6px;
+  }
+  #title{
+    font-family:'Baloo 2', sans-serif; font-weight:800;
+    font-size: 19px; color: var(--bear-dark);
+    text-shadow: 2px 2px 0 #fff8;
+    display:flex; align-items:center; gap:6px;
+  }
+  #hud{ display:flex; align-items:center; gap:8px; }
+  .pill{
+    background: var(--card); border-radius: 999px;
+    padding: 5px 11px; font-weight:700; font-size:13px;
+    box-shadow: 0 3px 0 #0001;
+    display:flex; align-items:center; gap:6px;
+  }
+  #soundBtn{
+    background: var(--card); border:none; border-radius:50%;
+    width:34px; height:34px; font-size:16px; cursor:pointer;
+    box-shadow: 0 3px 0 #0001;
+  }
+
+  /* ---------- Progress dots ---------- */
+  #progress{ display:flex; justify-content:center; gap:6px; margin: 0 0 6px; }
+  .dot{ width:9px; height:9px; border-radius:50%; background:#ffffffaa; transition: all .25s; box-shadow:0 1px 0 #0002; }
+  .dot.done{ background: var(--good); }
+  .dot.current{ background: var(--bear-dark); transform: scale(1.3); }
+
+  /* ---------- Speech bubble ---------- */
+  #bubbleWrap{ display:flex; justify-content:center; margin-bottom: 4px; position:relative; z-index:40; }
+  #bubble{
+    background: var(--card);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 15px; font-weight:700;
+    box-shadow: 0 4px 0 #0001;
+    display:flex; flex-direction:column; align-items:center; gap:1px;
+    max-width: 92%;
+    text-align:center;
+    position:relative;
+    animation: pop .25s ease;
+  }
+  #bubbleRow{ display:flex; align-items:center; gap:8px; }
+  #bubbleWord{ font-family:'Baloo 2',sans-serif; font-size:19px; color:var(--bear-dark); }
+  #bubbleSub{ font-size:11px; font-weight:600; opacity:.65; }
+  #bubble:after{
+    content:"";
+    position:absolute; bottom:-9px; left:50%; transform: translateX(-50%);
+    border-width: 9px 7px 0 7px;
+    border-style: solid;
+    border-color: var(--card) transparent transparent transparent;
+  }
+  #speakBtn{
+    border:none; background: var(--bear); color:white;
+    width:28px; height:28px; min-width:28px; border-radius:50%;
+    font-size:13px; cursor:pointer;
+    box-shadow: 0 2px 0 var(--bear-dark);
+  }
+  #speakBtn:active{ transform: translateY(2px); box-shadow:none; }
+
+  /* ---------- MAP ---------- */
+  #mapWrap{ flex:1; min-height:0; padding-bottom:10px; }
+  #mapScene{
+    position:relative; width:100%; height:100%;
+    border-radius: 26px;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 85% 8%, #FFF3B0 0 26px, transparent 27px),
+      repeating-radial-gradient(circle at 20% 30%, #ffffff22 0 2px, transparent 3px 40px),
+      linear-gradient(180deg, var(--grass1) 0%, var(--grass2) 100%);
+    box-shadow: inset 0 0 0 4px #ffffff55, 0 4px 0 #0001;
+  }
+  .deco{ position:absolute; pointer-events:none; font-size:26px; filter:drop-shadow(0 3px 1px #0002); animation: sway 3.5s ease-in-out infinite; }
+  @keyframes sway{ 0%,100%{ transform:rotate(-4deg);} 50%{ transform:rotate(4deg);} }
+
+  #hintLabel{
+    position:absolute; top:6px; left:0; right:0; z-index:35;
+    text-align:center; font-size:12px; font-weight:700; color:#fff;
+    text-shadow: 0 1px 2px #0006;
+    pointer-events:none;
+  }
+
+  /* ---------- Food icon on map ---------- */
+  .mapFood{
+    position:absolute; transform: translate(-50%,-50%);
+    width: 62px; height:62px;
+    display:flex; align-items:center; justify-content:center;
+    z-index:10; cursor:pointer;
+    animation: floatFood 2.4s ease-in-out infinite;
+  }
+  .mapFood .plate{
+    width:100%; height:100%; background:#fff; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 4px 0 #0002, 0 0 0 4px #ffffffaa;
+  }
+  .mapFood img{ width:42px; height:42px; object-fit:contain; }
+  .mapFood .word{
+    position:absolute; bottom:-16px; left:0; right:0; text-align:center;
+    font-size:10px; font-weight:700; color:#fff; text-shadow:0 1px 2px #0007; opacity:0;
+    transition: opacity .2s;
+  }
+  .mapFood.showWord .word{ opacity:1; }
+  .mapFood.disabled{ pointer-events:none; }
+  .mapFood.eaten{ animation: eatenPop .5s ease forwards; pointer-events:none; }
+  @keyframes eatenPop{
+    0%{ transform: translate(-50%,-50%) scale(1); opacity:1; }
+    40%{ transform: translate(-50%,-50%) scale(1.35); opacity:1; }
+    100%{ transform: translate(-50%,-70%) scale(0.1); opacity:0; }
+  }
+  @keyframes floatFood{ 0%,100%{ transform: translate(-50%,-50%) translateY(0);} 50%{ transform: translate(-50%,-50%) translateY(-6px);} }
+  .mapFood.wrongShake{ animation: wrongShake .5s ease; }
+  @keyframes wrongShake{
+    0%,100%{ transform: translate(-50%,-50%) rotate(0); }
+    20%{ transform: translate(-50%,-50%) rotate(-12deg); }
+    40%{ transform: translate(-50%,-50%) rotate(10deg); }
+    60%{ transform: translate(-50%,-50%) rotate(-8deg); }
+    80%{ transform: translate(-50%,-50%) rotate(5deg); }
+  }
+  .mapFood.hintPulse .plate{ animation: hintGlow 1s ease-in-out infinite; }
+  @keyframes hintGlow{
+    0%,100%{ box-shadow: 0 4px 0 #0002, 0 0 0 4px #ffffffaa; }
+    50%{ box-shadow: 0 4px 0 #0002, 0 0 0 9px #FFD93Daa; }
+  }
+
+  .miniFlash{
+    position:absolute; left:50%; top:-6px; transform:translate(-50%,-100%);
+    font-size:26px; opacity:0; z-index:40; pointer-events:none;
+  }
+  .miniFlash.show{ animation: flashPop .7s ease forwards; }
+  @keyframes flashPop{
+    0%{ opacity:0; transform: translate(-50%,-90%) scale(.4);}
+    30%{ opacity:1; transform: translate(-50%,-110%) scale(1.15);}
+    70%{ opacity:1; transform: translate(-50%,-110%) scale(1);}
+    100%{ opacity:0; transform: translate(-50%,-130%) scale(1.3);}
+  }
+
+  /* ---------- den (bear's home spot) ---------- */
+  #den{
+    position:absolute; left:50%; top:90%; transform:translate(-50%,-50%);
+    width:70px; height:34px; border-radius:50%;
+    background:#00000022; z-index:1;
+  }
+
+  /* ---------- BEAR (positioned, walks across the map) ---------- */
+  #bearPos{
+    position:absolute; left:50%; top:88%;
+    transform: translate(-50%,-92%);
+    width: 92px; z-index:20;
+    transition: left 1.05s ease, top 1.05s ease;
+  }
+  #bearFlip{
+    width:100%; transition: transform .3s ease;
+  }
+  #bearFlip.face-left{ transform: scaleX(-1); }
+
+  #bearWrap{ position:relative; animation: idleBob 2.4s ease-in-out infinite; }
+  @keyframes idleBob{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-4px);} }
+
+  #bearWrap.walking{ animation: walkBob .5s ease-in-out infinite; }
+  @keyframes walkBob{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-5px);} }
+
+  .legL, .legR{ transform-origin: 82px 190px; }
+  .armL{ transform-origin: 55px 128px; }
+  .armR{ transform-origin: 145px 128px; }
+  .legR{ transform-origin: 118px 190px; }
+
+  #bearWrap.walking .legL{ animation: walkLegL .5s ease-in-out infinite; }
+  #bearWrap.walking .legR{ animation: walkLegR .5s ease-in-out infinite; }
+  #bearWrap.walking .armL{ animation: walkArmL .5s ease-in-out infinite; }
+  #bearWrap.walking .armR{ animation: walkArmR .5s ease-in-out infinite; }
+  @keyframes walkLegL{ 0%,100%{ transform:rotate(-22deg);} 50%{ transform:rotate(22deg);} }
+  @keyframes walkLegR{ 0%,100%{ transform:rotate(22deg);} 50%{ transform:rotate(-22deg);} }
+  @keyframes walkArmL{ 0%,100%{ transform:rotate(20deg);} 50%{ transform:rotate(-20deg);} }
+  @keyframes walkArmR{ 0%,100%{ transform:rotate(-20deg);} 50%{ transform:rotate(20deg);} }
+
+  #bearWrap.shake{ animation: shakeHead .5s ease; }
+  @keyframes shakeHead{
+    0%,100%{ transform: rotate(0); }
+    20%{ transform: rotate(-8deg); }
+    40%{ transform: rotate(7deg); }
+    60%{ transform: rotate(-5deg); }
+    80%{ transform: rotate(4deg); }
+  }
+
+  .eye{ transition: transform .15s; }
+  #bearWrap.chewing .eye{ animation: eyeChew .4s steps(2) infinite; }
+  @keyframes eyeChew{ 0%,100%{ transform: scaleY(1);} 50%{ transform: scaleY(.4);} }
+  #bearWrap.chewing #headGroup{ animation: chewBounce .4s ease-in-out infinite; }
+  @keyframes chewBounce{
+    0%,100%{ transform: scale(1) translateY(0); }
+    50%{ transform: scale(1.05,0.95) translateY(2px); }
+  }
+  .mouthGroup.chewing .mouthOpenPath{ animation: chewOpen .4s steps(1) infinite; }
+  .mouthGroup.chewing .mouthClosedPath{ animation: chewClosed .4s steps(1) infinite; }
+  @keyframes chewOpen{ 0%,100%{ opacity:0;} 50%{ opacity:1;} }
+  @keyframes chewClosed{ 0%,100%{ opacity:1;} 50%{ opacity:0;} }
+  .mouthOpenPath{ opacity:0; transition: opacity .15s; }
+  .mouthClosedPath{ opacity:1; transition: opacity .15s; }
+
+  /* drinking: arms raise a cup to the mouth, head tilts back */
+  #bearWrap.drinking #headGroup{ animation: drinkTiltHead .3s ease forwards; }
+  @keyframes drinkTiltHead{ to{ transform: rotate(-14deg) translateY(-3px); } }
+  #bearWrap.drinking .armL{ animation: raiseArmL .3s ease forwards; }
+  #bearWrap.drinking .armR{ animation: raiseArmR .3s ease forwards; }
+  @keyframes raiseArmL{ to{ transform: rotate(120deg); } }
+  @keyframes raiseArmR{ to{ transform: rotate(-120deg); } }
+  #bearWrap.drinking .happyLid{ opacity:1; }
+  #bearWrap.drinking .eye{ opacity:0; }
+  .happyLid{ opacity:0; transition: opacity .2s; }
+  #bearWrap.drinking .throat{ opacity:1; animation: gulp .4s ease-in-out infinite; }
+  .throat{ opacity:0; }
+  @keyframes gulp{
+    0%,100%{ transform: scale(1) translateY(0); }
+    50%{ transform: scale(1.15,0.9) translateY(3px); }
+  }
+  #cupHold{
+    position:absolute; left:50%; top:6px; transform:translate(-50%,-100%) scale(0);
+    width:34px; height:34px; opacity:0; transition:none; z-index:25; pointer-events:none;
+  }
+  #bearWrap.drinking #cupHold{ opacity:1; transform:translate(-64%,-118%) scale(0.9) rotate(-45deg); transition: all .3s ease .1s; }
+  #cupHold img{ width:100%; height:100%; object-fit:contain; }
+
+  .glug{
+    position:absolute; border-radius:50%; z-index:26; pointer-events:none;
+    background: radial-gradient(circle at 35% 30%, #ffffffee, var(--water) 70%, #3FA3E6 100%);
+    animation: glugFloat linear forwards;
+  }
+  @keyframes glugFloat{
+    0%{ transform: translateY(0) scale(.5); opacity:0; }
+    15%{ opacity:1; }
+    100%{ transform: translateY(-60px) scale(1); opacity:0; }
+  }
+
+  .confetti{
+    position:absolute; top:-10px; width:8px; height:14px; border-radius:2px;
+    z-index:25; animation: fall linear forwards;
+  }
+  @keyframes fall{ to{ transform: translateY(120vh) rotate(540deg); opacity:0.2; } }
+
+  /* ---------- end screen ---------- */
+  #endScreen{
+    position:absolute; inset:0; z-index:50;
+    background: #00000055;
+    display:none; align-items:center; justify-content:center;
+  }
+  #endScreen.show{ display:flex; }
+  #endCard{
+    background: var(--card); border-radius: 28px; padding: 30px 26px;
+    text-align:center; width: 82%; max-width: 320px;
+    animation: pop .3s ease;
+  }
+  #endCard h2{ font-family:'Baloo 2',sans-serif; color:var(--bear-dark); margin:0 0 6px; }
+  #endStars{ font-size: 40px; margin: 10px 0; letter-spacing:4px; }
+  #playAgain{
+    margin-top: 14px; border:none; background: var(--bear); color:#fff;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:16px;
+    padding: 12px 26px; border-radius: 999px; cursor:pointer;
+    box-shadow: 0 4px 0 var(--bear-dark);
+  }
+  #playAgain:active{ transform: translateY(3px); box-shadow:none; }
+
+  /* ---------- start screen ---------- */
+  #startScreen{
+    position:absolute; inset:0; z-index:60;
+    background: #00000055;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #startScreen.hide{ display:none; }
+  #startCard{
+    background: var(--card); border-radius: 28px; padding: 30px 26px;
+    text-align:center; width: 82%; max-width: 320px;
+    animation: pop .3s ease;
+  }
+  #startCard h2{ font-family:'Baloo 2',sans-serif; color:var(--bear-dark); margin:0 0 8px; }
+  #startCard p{ margin:0 0 16px; font-size:14px; opacity:.8; }
+  #startBtn{
+    border:none; background: var(--bear); color:#fff;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:18px;
+    padding: 14px 30px; border-radius: 999px; cursor:pointer;
+    box-shadow: 0 4px 0 var(--bear-dark);
+  }
+  #startBtn:active{ transform: translateY(3px); box-shadow:none; }
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <div id="topbar">
+    <div id="title">🐻 Gấu Đi Kiếm Ăn</div>
+    <div id="hud">
+      <div class="pill">⭐ <span id="scoreVal">0</span></div>
+      <button id="soundBtn" title="Bật/tắt âm thanh">🔊</button>
+    </div>
+  </div>
+
+  <div id="progress"></div>
+
+  <div id="bubbleWrap">
+    <div id="bubble">
+      <div id="bubbleRow">
+        <span id="bubbleWord">Ready?</span>
+        <button id="speakBtn" title="Nghe lại">🔊</button>
+      </div>
+      <div id="bubbleSub"></div>
+    </div>
+  </div>
+
+  <div id="mapWrap">
+    <div id="mapScene">
+      <div id="hintLabel"></div>
+      <div class="deco" style="left:6%; top:10%; animation-delay:.2s;">🌳</div>
+      <div class="deco" style="left:90%; top:32%; animation-delay:.6s;">🌳</div>
+      <div class="deco" style="left:4%; top:75%; animation-delay:1s; font-size:20px;">🌼</div>
+      <div class="deco" style="left:93%; top:80%; animation-delay:1.4s; font-size:20px;">🌼</div>
+      <div class="deco" style="left:30%; top:85%; animation-delay:.8s; font-size:18px;">🌿</div>
+      <div class="deco" style="left:70%; top:90%; animation-delay:1.6s; font-size:18px;">🌿</div>
+
+      <div id="den"></div>
+
+      <!-- food icons + bear are injected here by JS -->
+
+      <div id="bearPos">
+        <div id="bearFlip">
+          <div id="bearWrap">
+            <svg viewBox="0 0 200 260" width="100%">
+              <ellipse cx="100" cy="252" rx="46" ry="7" fill="#00000018"/>
+
+              <!-- legs (behind torso) -->
+              <g class="legL">
+                <rect x="70" y="185" width="24" height="60" rx="12" fill="var(--bear)" stroke="var(--bear-dark)" stroke-width="4"/>
+                <ellipse cx="82" cy="248" rx="16" ry="9" fill="var(--bear-dark)"/>
+              </g>
+              <g class="legR">
+                <rect x="106" y="185" width="24" height="60" rx="12" fill="var(--bear)" stroke="var(--bear-dark)" stroke-width="4"/>
+                <ellipse cx="118" cy="248" rx="16" ry="9" fill="var(--bear-dark)"/>
+              </g>
+
+              <!-- torso -->
+              <ellipse cx="100" cy="165" rx="46" ry="52" fill="var(--bear)" stroke="var(--bear-dark)" stroke-width="5"/>
+              <ellipse cx="100" cy="178" rx="28" ry="30" fill="var(--bear-belly)" opacity="0.9"/>
+
+              <!-- arms -->
+              <g class="armL">
+                <rect x="42" y="122" width="20" height="52" rx="10" fill="var(--bear)" stroke="var(--bear-dark)" stroke-width="4"/>
+                <circle cx="52" cy="176" r="12" fill="var(--bear)" stroke="var(--bear-dark)" stroke-width="4"/>
+              </g>
+              <g class="armR">
+                <rect x="138" y="122" width="20" height="52" rx="10" fill="var(--bear)" stroke="var(--bear-dark)" stroke-width="4"/>
+                <circle cx="148" cy="176" r="12" fill="var(--bear)" stroke="var(--bear-dark)" stroke-width="4"/>
+              </g>
+
+              <!-- head -->
+              <g id="headGroup" style="transform-origin:100px 118px; transition: transform .2s ease;">
+                <circle cx="60" cy="62" r="22" fill="var(--bear)" stroke="var(--bear-dark)" stroke-width="5"/>
+                <circle cx="140" cy="62" r="22" fill="var(--bear)" stroke="var(--bear-dark)" stroke-width="5"/>
+                <circle cx="60" cy="62" r="10" fill="var(--bear-ear)"/>
+                <circle cx="140" cy="62" r="10" fill="var(--bear-ear)"/>
+
+                <circle cx="100" cy="82" r="52" fill="var(--bear)" stroke="var(--bear-dark)" stroke-width="5"/>
+                <ellipse cx="100" cy="98" rx="34" ry="28" fill="var(--bear-belly)" opacity="0.9"/>
+
+                <g class="eye">
+                  <circle cx="80" cy="72" r="12" fill="white" stroke="var(--bear-dark)" stroke-width="3"/>
+                  <circle cx="83" cy="75" r="5.5" fill="#3A2E22"/>
+                </g>
+                <g class="eye">
+                  <circle cx="120" cy="72" r="12" fill="white" stroke="var(--bear-dark)" stroke-width="3"/>
+                  <circle cx="123" cy="75" r="5.5" fill="#3A2E22"/>
+                </g>
+
+                <g class="happyLid">
+                  <ellipse cx="80" cy="72" rx="13" ry="13" fill="var(--bear)"/>
+                  <path d="M69 72 Q80 64 91 72" fill="none" stroke="var(--bear-dark)" stroke-width="3" stroke-linecap="round"/>
+                  <ellipse cx="120" cy="72" rx="13" ry="13" fill="var(--bear)"/>
+                  <path d="M109 72 Q120 64 131 72" fill="none" stroke="var(--bear-dark)" stroke-width="3" stroke-linecap="round"/>
+                </g>
+
+                <ellipse cx="100" cy="96" rx="19" ry="15" fill="var(--bear-belly)" stroke="var(--bear-dark)" stroke-width="2"/>
+                <ellipse cx="100" cy="84" rx="7.5" ry="5.5" fill="#3A2E22"/>
+
+                <g class="mouthGroup">
+                  <path class="mouthClosedPath" d="M100 90 L100 100" stroke="#3A2E22" stroke-width="2.2" stroke-linecap="round"/>
+                  <path class="mouthClosedPath" d="M84 100 Q100 112 116 100" fill="none" stroke="#3A2E22" stroke-width="3" stroke-linecap="round"/>
+                  <g class="mouthOpenPath">
+                    <ellipse cx="100" cy="103" rx="17" ry="13" fill="#3A2E22"/>
+                    <path d="M84 96 Q100 90 116 96 L113 100 Q100 94 87 100 Z" fill="white"/>
+                    <ellipse cx="100" cy="112" rx="10" ry="5" fill="#FF8FA3"/>
+                  </g>
+                </g>
+              </g>
+
+              <ellipse class="throat" cx="100" cy="132" rx="10" ry="6" fill="var(--bear-belly)" stroke="var(--bear-dark)" stroke-width="1.6"/>
+            </svg>
+            <div id="cupHold"></div>
+          </div>
+        </div>
+        <div class="miniFlash" id="bearFlash"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="endScreen">
+    <div id="endCard">
+      <h2>Giỏi quá! 🎉</h2>
+      <div id="endStars"></div>
+      <div id="endScoreText" style="font-weight:700;"></div>
+      <button id="playAgain">Chơi lại</button>
+    </div>
+  </div>
+
+  <div id="startScreen">
+    <div id="startCard">
+      <h2>🐻 Gấu Đi Kiếm Ăn</h2>
+      <p>Gấu con sẽ nói tên món ăn — bé hãy chạm đúng món trên bản đồ để gấu đi tới ăn nhé!<br>Chạm để bắt đầu & bật âm thanh</p>
+      <button id="startBtn">▶ Bắt đầu</button>
+    </div>
+  </div>
+
+</div>
+
+  <!-- =========================================================
+       BẠN CÓ THỂ TỰ THÊM ÂM THANH THẬT (không bắt buộc)!
+       Chỉ cần tải các file .mp3 lên cùng thư mục với file HTML
+       này, trong một thư mục con tên "assets/audio/", đặt ĐÚNG
+       tên như dưới đây:
+
+         assets/audio/say_rice.mp3       -> "I like rice."
+         assets/audio/say_cake.mp3       -> "I like cake."
+         assets/audio/say_pasta.mp3      -> "I like pasta."
+         assets/audio/say_salad.mp3      -> "I like salad."
+         assets/audio/say_soup.mp3       -> "I like soup."
+         assets/audio/say_water.mp3      -> "I like water."
+         assets/audio/say_ice_cream.mp3  -> "I like ice cream."
+         assets/audio/chomp.mp3          -> tiếng nhai / nom nom
+         assets/audio/gulp.mp3           -> tiếng uống / ực ực
+         assets/audio/correct.mp3        -> tiếng "đúng rồi" vui tai
+         assets/audio/wrong.mp3          -> tiếng "sai rồi"
+
+       Nếu chưa có file nào, game vẫn chạy bình thường: nó sẽ tự
+       dùng giọng đọc có sẵn của trình duyệt và âm thanh tổng hợp
+       nhỏ (bíp bíp) để thay thế, giống hệt cơ chế trong feed.html.
+       ========================================================= -->
+  <audio id="sfx_chomp"   preload="auto" src="assets/audio/chomp.mp3"></audio>
+  <audio id="sfx_gulp"    preload="auto" src="assets/audio/gulp.mp3"></audio>
+  <audio id="sfx_correct" preload="auto" src="assets/audio/correct.mp3"></audio>
+  <audio id="sfx_wrong"   preload="auto" src="assets/audio/wrong.mp3"></audio>
+
+<script>
+(function(){
+
+  /* ================= FOOD DATA (with fixed scattered map positions, in %) ================= */
+  const FOODS = [
+    { id:'rice',      word:'rice',      sentence:'I like rice.',      type:'food',
+      audio:'assets/audio/say_rice.mp3',
+      imgSrc:'https://cdn-icons-png.flaticon.com/512/1531/1531334.png' },
+    { id:'cake',      word:'cake',      sentence:'I like cake.',      type:'food',
+      audio:'assets/audio/say_cake.mp3',
+      imgSrc:'https://cdn-icons-png.flaticon.com/512/2682/2682446.png' },
+    { id:'pasta',     word:'pasta',     sentence:'I like pasta.',     type:'food',
+      audio:'assets/audio/say_pasta.mp3',
+      imgSrc:'https://cdn-icons-png.flaticon.com/512/8512/8512334.png' },
+    { id:'salad',     word:'salad',     sentence:'I like salad.',     type:'food',
+      audio:'assets/audio/say_salad.mp3',
+      imgSrc:'https://cdn-icons-png.flaticon.com/512/8204/8204862.png' },
+    { id:'soup',      word:'soup',      sentence:'I like soup.',      type:'food',
+      audio:'assets/audio/say_soup.mp3',
+      imgSrc:'https://cdn-icons-png.flaticon.com/512/11329/11329211.png' },
+    { id:'water',     word:'water',     sentence:'I like water.',     type:'drink',
+      audio:'assets/audio/say_water.mp3',
+      imgSrc:'https://cdn-icons-png.flaticon.com/512/2447/2447764.png' },
+    { id:'ice cream', word:'ice cream', sentence:'I like ice cream.', type:'food',
+      audio:'assets/audio/say_ice_cream.mp3',
+      imgSrc:'https://cdn-icons-png.flaticon.com/512/938/938114.png' }
+  ];
+
+  // One reusable <audio> element per sentence, created up front and
+  // "unlocked" on the very first tap (see startBtn handler below) so
+  // playback works reliably on mobile from the first round onward.
+  FOODS.forEach(item=>{
+    item.audioEl = new Audio(item.audio);
+    item.audioEl.preload = 'auto';
+  });
+
+  // Pool of well-spaced spots on the map (in % of the map box). Each
+  // "play again" shuffles and re-assigns these to the foods, so the
+  // layout changes but items never overlap or hide behind decorations.
+  const POSITION_POOL = [
+    {x:16, y:22}, {x:80, y:16}, {x:38, y:50}, {x:66, y:40}, {x:86, y:58},
+    {x:12, y:58}, {x:52, y:70}, {x:28, y:14}, {x:62, y:64}, {x:90, y:32}
+  ];
+  function assignRandomPositions(){
+    const spots = shuffle(POSITION_POOL).slice(0, FOODS.length);
+    FOODS.forEach((food, i)=>{ food.x = spots[i].x; food.y = spots[i].y; });
+  }
+
+  const TOTAL_ROUNDS = FOODS.length;
+  let order = [];
+  let roundIndex = 0;
+  let score = 0;
+  let wrongThisRound = 0;
+  let busy = false;
+  let soundOn = true;
+  let bearX = 50, bearY = 88;
+
+  const el = id => document.getElementById(id);
+  const bubbleWord = el('bubbleWord');
+  const bubbleSub = el('bubbleSub');
+  const progressEl = el('progress');
+  const scoreVal = el('scoreVal');
+  const mapScene = el('mapScene');
+  const bearPos = el('bearPos');
+  const bearFlip = el('bearFlip');
+  const bearWrap = el('bearWrap');
+  const bearFlash = el('bearFlash');
+  const hintLabel = el('hintLabel');
+  const endScreen = el('endScreen');
+  const cupHold = el('cupHold');
+
+  /* ---------- tiny synth sound effects ---------- */
+  let actx;
+  function beep(freq, dur, type){
+    try{
+      actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = type||'sine';
+      o.frequency.value = freq;
+      g.gain.value = 0.08;
+      o.connect(g); g.connect(actx.destination);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
+      o.stop(actx.currentTime + dur);
+    }catch(e){}
+  }
+  function playChompBeeps(times){
+    if(!soundOn) return;
+    const audio = el('sfx_chomp');
+    if(audio && audio.getAttribute('src')){
+      audio.currentTime = 0;
+      audio.play().catch(()=>{ for(let i=0;i<times;i++) setTimeout(()=>beep(i%2?220:180,.11,'square'), i*180); });
+    } else {
+      for(let i=0;i<times;i++) setTimeout(()=>beep(i%2?220:180,.11,'square'), i*180);
+    }
+  }
+  function playGulpBeeps(times){
+    if(!soundOn) return;
+    const audio = el('sfx_gulp');
+    if(audio && audio.getAttribute('src')){
+      audio.currentTime = 0;
+      audio.play().catch(()=>{ for(let i=0;i<times;i++) setTimeout(()=>beep(150+(i%2)*40,.16,'sine'), i*260); });
+    } else {
+      for(let i=0;i<times;i++) setTimeout(()=>beep(150+(i%2)*40,.16,'sine'), i*260);
+    }
+  }
+  function playCorrect(){
+    if(!soundOn) return;
+    const audio = el('sfx_correct');
+    if(audio && audio.getAttribute('src')){
+      audio.currentTime = 0;
+      audio.play().catch(()=>{ beep(523,.12); setTimeout(()=>beep(659,.12),110); setTimeout(()=>beep(784,.18),220); });
+    } else {
+      beep(523,.12); setTimeout(()=>beep(659,.12),110); setTimeout(()=>beep(784,.18),220);
+    }
+  }
+  function playWrong(){
+    if(!soundOn) return;
+    const audio = el('sfx_wrong');
+    if(audio && audio.getAttribute('src')){
+      audio.currentTime = 0;
+      audio.play().catch(()=>{ beep(180,.15,'sawtooth'); setTimeout(()=>beep(140,.2,'sawtooth'),150); });
+    } else {
+      beep(180,.15,'sawtooth'); setTimeout(()=>beep(140,.2,'sawtooth'),150);
+    }
+  }
+
+  function speak(text){
+    if(!soundOn) return;
+    try{
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US'; u.rate = 0.82; u.pitch = 1.1;
+      speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  // Plays the food's real recording if the mp3 was uploaded; otherwise
+  // falls back to the browser's built-in voice reading the sentence.
+  function playSentence(food){
+    if(!soundOn) return;
+    const a = food.audioEl;
+    a.currentTime = 0;
+    const p = a.play();
+    if(p && p.catch) p.catch(()=> speak(food.sentence));
+    a.onerror = ()=> speak(food.sentence);
+    setTimeout(()=>{ if(a.error) speak(food.sentence); }, 300);
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+  }
+
+  function buildOrder(){ order = shuffle(FOODS); }
+
+  function buildProgressDots(){
+    progressEl.innerHTML = '';
+    for(let i=0;i<TOTAL_ROUNDS;i++){
+      const d = document.createElement('div');
+      d.className = 'dot';
+      progressEl.appendChild(d);
+    }
+  }
+  function updateProgressDots(){
+    [...progressEl.children].forEach((d,i)=>{
+      d.className = 'dot' + (i<roundIndex ? ' done' : (i===roundIndex ? ' current':''));
+    });
+  }
+
+  function flashAt(node, char){
+    let f = node.querySelector('.miniFlash');
+    if(!f){ f = document.createElement('div'); f.className='miniFlash'; node.appendChild(f); }
+    f.textContent = char;
+    f.classList.remove('show'); void f.offsetWidth;
+    f.classList.add('show');
+  }
+
+  function confettiBurst(){
+    const colors = ['#FF6B6B','#FFD93D','#4CD37E','#6FA8FF','#B389F9'];
+    for(let i=0;i<16;i++){
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = (10 + Math.random()*80) + '%';
+      c.style.background = colors[i % colors.length];
+      c.style.animationDuration = (1 + Math.random()*0.8) + 's';
+      c.style.top = '-10px';
+      mapScene.appendChild(c);
+      setTimeout(()=>c.remove(), 2000);
+    }
+  }
+
+  function glugBurst(){
+    for(let i=0;i<7;i++){
+      const g = document.createElement('div');
+      g.className = 'glug';
+      const size = 6 + Math.random()*9;
+      g.style.width = size+'px'; g.style.height = size+'px';
+      g.style.left = (48 + Math.random()*10) + '%';
+      g.style.top = '-14px';
+      const holder = document.getElementById('cupHold');
+      holder.appendChild(g);
+      setTimeout(()=>g.remove(), 1200);
+    }
+  }
+
+  /* ---------- render food icons on the map ---------- */
+  function renderMapFoods(){
+    [...mapScene.querySelectorAll('.mapFood')].forEach(n=>n.remove());
+    FOODS.forEach(food=>{
+      const node = document.createElement('div');
+      node.className = 'mapFood';
+      node.dataset.id = food.id;
+      node.style.left = food.x + '%';
+      node.style.top = food.y + '%';
+      node.style.animationDelay = (Math.random()*1.6) + 's';
+      node.innerHTML = `<div class="plate"><img src="${food.imgSrc}" alt="${food.word}" draggable="false"></div>
+                         <span class="word">${food.word}</span>`;
+      node.addEventListener('click', ()=> onTapFood(food, node));
+      mapScene.appendChild(node);
+    });
+  }
+
+  function startRound(){
+    if(roundIndex >= TOTAL_ROUNDS){ return endGame(); }
+    busy = false;
+    wrongThisRound = 0;
+    hintLabel.textContent = '';
+    [...mapScene.querySelectorAll('.mapFood')].forEach(n=>n.classList.remove('hintPulse','showWord','disabled'));
+    updateProgressDots();
+
+    const target = order[roundIndex];
+    bubbleWord.textContent = target.word.toUpperCase();
+    bubbleSub.textContent = target.type === 'drink' ? '🐻 thích món...' : '🐻 thích món ...';
+
+    const bubble = document.getElementById('bubble');
+    bubble.style.animation = 'none'; void bubble.offsetWidth; bubble.style.animation = 'pop .25s ease';
+
+    setTimeout(()=> playSentence(target), 350);
+  }
+
+  el('speakBtn').addEventListener('click', ()=>{
+    const target = order[roundIndex];
+    if(target) playSentence(target);
+  });
+
+  function setBearFacing(targetX){
+    if(targetX < bearX - 1){ bearFlip.classList.add('face-left'); }
+    else if(targetX > bearX + 1){ bearFlip.classList.remove('face-left'); }
+  }
+
+  function walkTo(x, y, callback){
+    setBearFacing(x);
+    bearWrap.classList.add('walking');
+    bearPos.style.left = x + '%';
+    bearPos.style.top = y + '%';
+    bearX = x; bearY = y;
+    setTimeout(()=>{
+      bearWrap.classList.remove('walking');
+      callback && callback();
+    }, 1080);
+  }
+
+  function onTapFood(food, node){
+    if(busy) return;
+    const target = order[roundIndex];
+
+    if(food.id !== target.id){
+      node.classList.remove('wrongShake'); void node.offsetWidth;
+      node.classList.add('wrongShake');
+      flashAt(node, '🙅');
+      playWrong();
+      wrongThisRound++;
+      if(wrongThisRound >= 2){
+        const targetNode = mapScene.querySelector('.mapFood[data-id="'+CSS.escape(target.id)+'"]');
+        if(targetNode){ targetNode.classList.add('hintPulse','showWord'); }
+        hintLabel.textContent = 'Gợi ý: tìm "' + target.word + '"';
+      }
+      return;
+    }
+
+    busy = true;
+    [...mapScene.querySelectorAll('.mapFood')].forEach(n=>n.classList.add('disabled'));
+
+    walkTo(food.x, food.y, ()=>{
+      playCorrect();
+      confettiBurst();
+      score += (wrongThisRound === 0 ? 2 : 1);
+      scoreVal.textContent = score;
+
+      if(food.type === 'drink'){
+        cupHold.innerHTML = `<img src="${food.imgSrc}">`;
+        bearWrap.classList.add('drinking');
+        flashAt(bearPos, '💧');
+        playGulpBeeps(3);
+        const glugInterval = setInterval(glugBurst, 320);
+        setTimeout(()=>{
+          clearInterval(glugInterval);
+          bearWrap.classList.remove('drinking');
+          node.style.animationDelay = '0s';
+          node.classList.add('eaten');
+          setTimeout(()=>{
+            roundIndex++;
+            startRound();
+          }, 250);
+        }, 1300);
+      } else {
+        bearWrap.classList.add('chewing');
+        flashAt(bearPos, '😋');
+        playChompBeeps(3);
+        node.style.animationDelay = '0s';
+        node.classList.add('eaten');
+        setTimeout(()=>{
+          bearWrap.classList.remove('chewing');
+          setTimeout(()=>{
+            roundIndex++;
+            startRound();
+          }, 250);
+        }, 700);
+      }
+    });
+  }
+
+  function endGame(){
+    const pct = score / (TOTAL_ROUNDS*2);
+    let stars = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : 1;
+    el('endStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
+    el('endScoreText').textContent = 'Điểm: ' + score + ' / ' + (TOTAL_ROUNDS*2);
+    endScreen.classList.add('show');
+  }
+
+  el('playAgain').addEventListener('click', ()=>{
+    endScreen.classList.remove('show');
+    score = 0; roundIndex = 0; scoreVal.textContent = 0;
+    bearPos.style.left = '50%'; bearPos.style.top = '88%'; bearX=50; bearY=88;
+    bearFlip.classList.remove('face-left');
+    assignRandomPositions();
+    renderMapFoods();
+    buildOrder(); buildProgressDots(); startRound();
+  });
+
+  el('soundBtn').addEventListener('click', ()=>{
+    soundOn = !soundOn;
+    el('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+    if(!soundOn) speechSynthesis.cancel();
+  });
+
+  assignRandomPositions();
+  renderMapFoods();
+  buildOrder();
+  buildProgressDots();
+
+  const startScreen = el('startScreen');
+  el('startBtn').addEventListener('click', ()=>{
+    startScreen.classList.add('hide');
+    // unlock every audio element (sfx + every sentence) on this first
+    // real user tap, muted, so playback works reliably later — same
+    // trick used in feed.html.
+    const targets = ['sfx_chomp','sfx_gulp','sfx_correct','sfx_wrong']
+      .map(id=>el(id)).concat(FOODS.map(item=>item.audioEl));
+    Promise.all(targets.map(a=> new Promise(resolve=>{
+      if(!a){ resolve(); return; }
+      const wasMuted = a.muted;
+      a.muted = true;
+      const done = ()=>{ a.pause(); a.currentTime = 0; a.muted = wasMuted; resolve(); };
+      const p = a.play();
+      if(p && p.then){ p.then(done).catch(done); } else { done(); }
+    }))).then(()=>{
+      try{
+        const warm = new SpeechSynthesisUtterance(' ');
+        warm.volume = 0;
+        speechSynthesis.speak(warm);
+      }catch(e){}
+      startRound();
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
